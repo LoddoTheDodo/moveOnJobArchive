@@ -6,7 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class CompanyModel extends Model
 {
+    protected $table = 'Companies';
+
     public function ArchivedJob() {
-        return $this->hasMany(ArchivedJobModel::class, 'companyId', 'robotId');
+        return $this->hasMany(ArchivedJobModel::class, 'robotId', 'companyId');
     }
 }
