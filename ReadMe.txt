@@ -16,9 +16,9 @@ Kræver: Docker Desktop (kørende), PHP, Composer, Git
 4. Tilføj i .env
    ELASTICSEARCH_HOST=http://localhost:9200
 
-5. Opret tabeller og fyld Elasticsearch
-   php artisan migrate
-   php artisan jobs:reindex
+5. Opret index og fyld Elasticsearch
+   php artisan app:create-archived-job-index
+   php artisan app:index-archived-jobs
 
 DAGLIG BRUG
    docker compose up -d     start
