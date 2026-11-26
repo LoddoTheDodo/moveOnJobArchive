@@ -4,9 +4,19 @@ namespace App\Http\Controllers;
 
 use App\elasticsearch\Indexer;
 use Elastic\Elasticsearch\Client;
+use Illuminate\Http\Request;
+use JobArchive\App\elasticsearch\Search;
 
 class ArchivedJobController extends Controller
 {
+
+    public function index(Request $request, Search $search) {
+
+        $cCollection = $search->getArchivedJobs($request->query("page") ?? 1, $request->query("perPage") ?? 10);
+
+        return view("welcome", ["results" => $cCollection]);
+    }
+
     public function show(string $job, Client $client)
     {
         $jobResponse = $client->search([
@@ -71,4 +81,5 @@ class ArchivedJobController extends Controller
 
         return view('jobs.show', compact('job', 'recommended'));
     }
+
 }

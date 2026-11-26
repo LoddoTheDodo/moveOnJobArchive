@@ -4,9 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 use App\Http\Controllers\ArchivedJobController;
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+Route::get('/', [ArchivedJobController::class, "index"])->name('home');
 
 Route::get('/jobs/{job}', [ArchivedJobController::class, 'show'])->name('jobs.show');
 
