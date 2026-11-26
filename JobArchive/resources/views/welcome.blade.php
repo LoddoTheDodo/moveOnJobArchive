@@ -81,77 +81,51 @@
     <main class="container py-5" style="max-width: 780px;">
         <div class="d-flex flex-column gap-4">
 
-            <div class="card border-0 shadow-sm overflow-hidden">
-                <div class="bg-dark" style="height: 220px;"></div>
-                <div class="card-body p-4">
-                    <div class="row align-items-center mb-4">
-                        <div class="col-sm-5">
-                            <span class="fw-bold fs-4 text-danger">Sydbank</span>
-                        </div>
-                        <div class="col-sm-7 text-sm-end">
-                            <h3 class="h5 fw-bold mb-0">Sydbank ApS</h3>
-                        </div>
-                    </div>
+            @foreach ($results as $result)
 
-                    <div class="row g-3 mb-4">
-                        <div class="col-sm-5">
-                            <div class="p-3 rounded bg-success-subtle h-100 d-flex flex-column justify-content-center">
-                                <div>2 aktive jobs</div>
-                                <div>10 inaktive jobs</div>
+                @php
+                    $companyInfo = $result["company_info"]["hits"]["hits"][0]["_source"];
+                @endphp
+                <div class="card border-0 shadow-sm overflow-hidden">
+                    <div class="bg-dark" style="height: 220px;"></div>
+                    <div class="card-body p-4">
+                        <div class="row align-items-center mb-4">
+                            <div class="col-sm-5">
+                                <span class="fw-bold fs-4 text-danger">{{$companyInfo["companyName"]}}</span>
+                            </div>
+                            <div class="col-sm-7 text-sm-end">
+                                <h3 class="h5 fw-bold mb-0">{{$companyInfo["companyName"]}}</h3>
                             </div>
                         </div>
-                        <div class="col-sm-7">
-                            <div class="p-3 rounded bg-light border h-100">
-                                <div class="small text-uppercase text-muted fw-semibold mb-2">
-                                    Trend i jobhistorik
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-sm-5">
+                                <div class="p-3 rounded bg-success-subtle h-100 d-flex flex-column justify-content-center">
+                                    <div>2 aktive jobs</div>
+                                    <div>{{ $result["doc_count"] }} inaktive jobs</div>
                                 </div>
-                                <div class="bg-black rounded w-100" style="height: 64px;"></div>
+                            </div>
+                            <div class="col-sm-7">
+                                <div class="p-3 rounded bg-light border h-100">
+                                    <div class="small text-uppercase text-muted fw-semibold mb-2">
+                                        Trend i jobhistorik
+                                    </div>
+                                    <div class="bg-black rounded w-100" style="height: 64px;"></div>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="d-flex justify-content-center align-items-center gap-2">
-                        <a href="#" class="btn btn-outline-secondary btn-sm rounded-pill px-3">Se alle jobs</a>
-                        <span class="small text-muted">eller</span>
-                        <a href="#" class="btn btn-success btn-sm rounded-pill px-3">Ansøg uopfordret</a>
+                        <div class="d-flex justify-content-center align-items-center gap-2">
+                            <a href="#" class="btn btn-outline-secondary btn-sm rounded-pill px-3">Se alle jobs</a>
+
+                            @if ($companyInfo["companyUnsolicitedApplications"] === "1")
+                                <span class="small text-muted">eller</span>
+                                <a href="{{$companyInfo["companyUrl"]}}" target="_blank" class="btn btn-success btn-sm rounded-pill px-3">Ansøg uopfordret</a>
+                            @endif
+                        </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="card border-0 shadow-sm overflow-hidden">
-                <div class="bg-dark" style="height: 220px;"></div>
-                <div class="card-body p-4">
-                    <div class="row align-items-center mb-4">
-                        <div class="col-sm-5">
-                            <span class="fw-bold fs-5 text-dark">AAU</span>
-                        </div>
-                        <div class="col-sm-7 text-sm-end">
-                            <h3 class="h5 fw-bold mb-0">Aalborg Universitet (AAU)</h3>
-                        </div>
-                    </div>
-
-                    <div class="row g-3 mb-4">
-                        <div class="col-sm-5">
-                            <div class="p-3 rounded bg-success-subtle h-100 d-flex flex-column justify-content-center">
-                                <div>3 aktive jobs</div>
-                                <div>28 inaktive jobs</div>
-                            </div>
-                        </div>
-                        <div class="col-sm-7">
-                            <div class="p-3 rounded bg-light border h-100">
-                                <div class="small text-uppercase text-muted fw-semibold mb-2">
-                                    Trend i jobhistorik
-                                </div>
-                                <div class="bg-black rounded w-100" style="height: 64px;"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="d-flex justify-content-center">
-                        <a href="#" class="btn btn-outline-secondary btn-sm rounded-pill px-3">Se alle jobs</a>
-                    </div>
-                </div>
-            </div>
+            @endforeach
 
         </div>
     </main>
