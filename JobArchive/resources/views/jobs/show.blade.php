@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $job->title }} - Jobarkiv</title>
+    <title>{{ $job['title'] }} - Jobarkiv</title>
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 </head>
 <body class="job-page">
@@ -37,13 +37,13 @@
     </header>
 
     @php
-        $companyName = $job->company?->companyName ?? 'Ukendt virksomhed';
+        $companyName = $job['companyName'] ?? 'Ukendt virksomhed';
         $companyInitials = collect(preg_split('/\s+/', trim($companyName)))
             ->filter()
             ->take(2)
             ->map(fn ($word) => mb_substr($word, 0, 1))
             ->implode('');
-        $description = trim(strip_tags($job->extractedContent ?? ''));
+        $description = trim(strip_tags($job['extractedContent'] ?? ''));
     @endphp
 
     <section class="job-company-header">
@@ -72,20 +72,20 @@
                         <span class="job-visual-label">JOBARKIV</span>
                     </div>
                     <div class="job-feature-body">
-                        <h2 class="h5 fw-bold mb-1">{{ $job->title }}</h2>
+                        <h2 class="h5 fw-bold mb-1">{{ $job['title'] }}</h2>
                         <p class="job-date mb-3">
-                            Opslået {{ $job->found ? \Illuminate\Support\Carbon::parse($job->found)->format('d-m-Y') : 'dato ikke angivet' }}
+                            Opslået {{ !empty($job['found']) ? \Illuminate\Support\Carbon::parse($job['found'])->format('d-m-Y') : 'dato ikke angivet' }}
                         </p>
 
                         <p class="job-description-preview mb-3">
                             {{ \Illuminate\Support\Str::limit($description, 520) }}
                         </p>
 
-                        @if ($job->category->isNotEmpty())
+                        @if (!empty($job['categories']))
                             <div class="d-flex flex-wrap gap-2 mb-3">
-                                @foreach ($job->category->take(4) as $category)
+                                @foreach (collect($job['categories'])->take(4) as $category)
                                     <span class="badge rounded-pill text-bg-light border fw-normal">
-                                        {{ $category->title }}
+                                        {{ $category['title'] }}
                                     </span>
                                 @endforeach
                             </div>
@@ -93,8 +93,8 @@
 
                         <div class="job-meta-row">
                             <span>
-                                {{ $job->company?->primaryAddressZip }}
-                                {{ $job->company?->primaryAddressCity }}
+                                {{ $job['companyPrimaryAddressZip'] ?? '' }}
+                                {{ $job['companyPrimaryAddressCity'] ?? '' }}
                             </span>
                             <span>{{ $companyName }}</span>
                             <a class="btn btn-jobbank-green btn-sm rounded-pill px-3" href="#job-description">
@@ -125,7 +125,7 @@
                     <div class="row g-3">
                         @foreach ($recommended as $recommendedJob)
                             @php
-                                $recommendedCompany = $recommendedJob->company?->companyName ?? 'Ukendt virksomhed';
+                                $recommendedCompany = $recommendedJob['companyName'] ?? 'Ukendt virksomhed';
                                 $recommendedInitials = collect(preg_split('/\s+/', trim($recommendedCompany)))
                                     ->filter()
                                     ->take(2)
@@ -139,12 +139,12 @@
                                     </div>
                                     <div class="recommended-job-body">
                                         <p class="small text-muted mb-1">{{ $recommendedCompany }}</p>
-                                        <h3 class="h6 fw-bold">{{ $recommendedJob->title }}</h3>
+                                        <h3 class="h6 fw-bold">{{ $recommendedJob['title'] }}</h3>
                                         <p class="recommended-job-location">
-                                            {{ $recommendedJob->company?->primaryAddressZip }}
-                                            {{ $recommendedJob->company?->primaryAddressCity }}
+                                            {{ $recommendedJob['companyPrimaryAddressZip'] ?? '' }}
+                                            {{ $recommendedJob['companyPrimaryAddressCity'] ?? '' }}
                                         </p>
-                                        <a href="{{ route('jobs.show', $recommendedJob) }}"
+                                        <a href="{{ route('jobs.show', $recommendedJob['id']) }}"
                                            class="btn btn-jobbank-green btn-sm rounded-pill px-3">
                                             Vis jobbet
                                         </a>

@@ -3,15 +3,31 @@
 namespace App\Http\Controllers;
 
 use App\elasticsearch\Indexer;
-use App\Models\ArchivedJobModel;
 use Elastic\Elasticsearch\Client;
-use Illuminate\Http\Request;
 
 class ArchivedJobController extends Controller
 {
-    public function show(Request $request, ArchivedJobModel $job, Client $client)
+    public function show(string $job, Client $client)
     {
-        $response = $client->search([
+        $jobResponse = $client->search([
+            'index' => Indexer::INDEX_NAME,
+            'body' => [
+                'size' => 1,
+                'query' => [
+                    'ids' => [
+                        'values' => [$job],
+                    ],
+                ],
+            ],
+        ])->asArray();
+
+        $jobHit = $jobResponse['hits']['hits'][0] ?? null;
+        abort_if($jobHit === null, 404);
+
+        $job = $jobHit['_source'];
+        $job['id'] = (string) $jobHit['_id'];
+
+        $recommendationResponse = $client->search([
             'index' => Indexer::INDEX_NAME,
             'body' => [
                 'size' => 5,
@@ -24,7 +40,7 @@ class ArchivedJobController extends Controller
                                     'like' => [
                                         [
                                             '_index' => Indexer::INDEX_NAME,
-                                            '_id' => (string) $job->getKey(),
+                                            '_id' => $job['id'],
                                         ],
                                     ],
                                     'min_term_freq' => 1,
@@ -36,36 +52,23 @@ class ArchivedJobController extends Controller
                         'must_not' => [
                             [
                                 'ids' => [
-                                    'values' => [(string) $job->getKey()],
+                                    'values' => [$job['id']],
                                 ],
                             ],
                         ],
                     ],
                 ],
             ],
-        ]);
+        ])->asArray();
 
-        $hits = $response->asArray()['hits']['hits'] ?? [];
-        $ids = array_column(array_map(
-            fn (array $hit) => ['id' => (string) $hit['_id']],
-            $hits
-        ), 'id');
+        $recommended = collect($recommendationResponse['hits']['hits'] ?? [])
+            ->map(function (array $hit) {
+                $job = $hit['_source'];
+                $job['id'] = (string) $hit['_id'];
 
-        $recommended = collect();
-        if ($ids !== []) {
-            $jobsById = ArchivedJobModel::with(['company', 'category'])
-                ->whereIn('id', $ids)
-                ->get()
-                ->keyBy(fn (ArchivedJobModel $item) => (string) $item->getKey());
+                return $job;
+            });
 
-            $recommended = collect($ids)
-                ->map(fn (string $id) => $jobsById->get($id))
-                ->filter();
-        }
-
-        return view('jobs.show', [
-            'job' => $job->load(['company', 'category']),
-            'recommended' => $recommended,
-        ]);
+        return view('jobs.show', compact('job', 'recommended'));
     }
 }

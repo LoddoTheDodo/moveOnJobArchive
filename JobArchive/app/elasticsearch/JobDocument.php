@@ -18,6 +18,8 @@ class JobDocument {
             "found" => $found->format('Y-m-d'),
             "lastExamined" => $lastExamined->format('Y-m-d'),
             "statusSince" => $statusSince->format('Y-m-d'),
+            "jobData" => $mModel->attributesToArray(),
+            "companyData" => $mModel->company->attributesToArray(),
             "companyId" => $mModel->company->id,
             "companyRobotId" => $mModel->company->robotId,
             "companyName" => $mModel->company->companyName,
@@ -29,7 +31,8 @@ class JobDocument {
             "companyUnsolicitedApplications" => $mModel->company->unsolicitedApplications,
             "companyLon" => $mModel->company->lon,
             "companyLat" => $mModel->company->lat,
-            "categories" => []
+            "categories" => [],
+            "categoryData" => []
         ];
 
         foreach($mModel->category as $category) {
@@ -38,6 +41,7 @@ class JobDocument {
                 "title" => $category->title,
                 "sequence" => $category->sequence
             ];
+            $aData["categoryData"][] = $category->attributesToArray();
         }
 
         return $aData;
